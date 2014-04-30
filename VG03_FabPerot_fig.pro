@@ -77,10 +77,12 @@ plot, wl, reform(d.dat[9, *]/100.0), xtitle=xtit, ytitle=ytit, thick=3.0, charth
  
 oplot, wl, reform(d.dat[9, *]/100.0), color=255, psym=10, thick=3.0
 oplot, wl, T_imr.t_net, color=0.0, linestyle=2, thick=3.0
+oplot, wl, reform(d.dat[13, *]/100.0), color=100.0, linestyle=1, thick=3.0
 
 leg_text=['Measured d~4000 nm gap', $
-          'Si FP Model d=3960 nm']        
-legend,leg_text,linestyle=[10, 2], color=[255, 0], $
+          'Si FP Model d=3960 nm', $
+          'Measured DSP Si']
+legend,leg_text,linestyle=[10, 2, 1], color=[255, 0, 100], $
   position=[1300.0, 0.8], charthick=2.0
 
  
