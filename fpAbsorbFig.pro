@@ -70,7 +70,7 @@ c1=ceil(findgen(nc)/nc*255)
 xtit=greek('lambda', /append_font)+' (nm)'
 device, /helvetica
 ;ytit='T!De!N'
-ytit='Transmission'
+ytit='Transmission ratio'
 
 !p.multi=[0, 2, 1, 0, 1]
 
