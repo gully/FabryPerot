@@ -13,13 +13,15 @@ pi=3.14159265D0
 ;2) Plot it.
 
 ;0) Import the data, manipulate the arrays [this should be a sub-function]
-fn1='20130218_cary5000_Si_all.csv'
+fn1='20140508_STA_Si_mgsTrim.csv'
 dir1='/Volumes/cambridge/Astronomy/silicon/ACT/bonding/cary5000/20140508/'
 cd, dir1
 ;at=ascii_template(fn1) ;you must use "GROUP ALL in the third ascii-template window!!"
 ;save, at, /verbose, filename=file_basename(fn1, '.csv')+'.sav'
 restore, file_basename(fn1, '.csv')+'.sav', /verbose
-d=cary_5000_csv(fn1, at)
+;Need a special reader for the Sample Transport Accessory data because it is so big.
+; #BigData
+d=cary_5000_csv_STA(fn1, at)
 
 wl=float(d.wl)
 nwls=n_elements(wl)
