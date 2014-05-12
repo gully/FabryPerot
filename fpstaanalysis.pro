@@ -35,7 +35,7 @@ thisArr=thisArr/100.0
 outArr=reform(thisArr, 21, 13, 51) ; Position, sample, wavelength bin.  Wow!
 
 meanWL=median(outArr, dimension=3)
-sigWL=SIG_ARRAY(outArr, 3)
+sigWL=meanWL*0.002;SIG_ARRAY(outArr, 3)
 
 xpos=findgen(21)*5.0+0.0
 
@@ -60,7 +60,7 @@ goodi= where(xpos lt 5.0 or (xpos gt 15.0 and xpos lt 80.0) or xpos gt 95.0 )
 c4 = fpAbs1250Fig( wl, rat1)
 c5 = fpGapCheckFig(xpos, meanWL, sigWL)
 c6 = fpGapCheckAltFig(xpos, meanWL, sigWL)
-c7 = fpCherryPicFig(xpos, meanWL, sigWL, outArr)
+c7 = fpCherryPicFig(wl, xpos, meanWL, sigWL, outArr)
 
 end
 
@@ -582,8 +582,7 @@ return, 1
 end
 
 
-
-function fpCherryPicFig, xpos, meanWL, sigWL, outArr
+function fpCherryPicFig, wl, xpos, meanWL, sigWL, outArr
 device, decomposed=1
 outdir='/Users/gully/IDLWorkspace/FabryPerot/figs/'
 outname='CherryPicSTA.eps'
@@ -616,8 +615,8 @@ id=6
 thisY=meanWL[*, id]
 thisErr=sigWL[*, id]
 plot, xpos, thisY, xtitle=xtit, ytitle=ytit, thick=3.0, charthick=2.0,$
- yrange=[0.495, 0.53], psym=10, charsize=0.8, $
- xrange=[-10.0, 110.0], xstyle=1, ystyle=1, /nodata, /noerase
+ yrange=[0.505, 0.520], psym=10, charsize=0.8, $
+ xrange=[17, 78], xstyle=1, ystyle=1, /nodata, /noerase
 
 ;oplot, xpos, thisY, psym=10, color=0, thick=3.0
 oploterror, xpos, thisY, thisErr,thisErr, psym=5, thick=3.0, color=150, errthick=3.0, errcolor=150
@@ -645,45 +644,75 @@ rgi=[4, 5, 6, 7, 8, 9, 10, 11]
 thisY=meanWL[rgi, id]
 thisErr=sigWL[rgi, id]
 ;oplot, xpos, thisY, psym=10, color=255, thick=3.0
-oploterror, xpos[rgi], thisY, thisErr,thisErr, thick=3.0, psym=10, color=0, errthick=3.0, errcolor=0
+;oploterror, xpos[rgi], thisY, thisErr,thisErr, thick=3.0, psym=10, color=0, errthick=3.0, errcolor=0
 
- 
-badx1=[4.0, 16.0]
-badx2=[79.0, 91.0]
-yband1=[100.0, 100.0]
-yband2=[-100.0, -100.0]
+id=2
+rgi=[4, 5, 6, 7, 8, 9, 10, 11]
+thisY=meanWL[rgi, id]
+thisErr=sigWL[rgi, id]
+;oplot, xpos, thisY, psym=10, color=255, thick=3.0
+;oploterror, xpos[rgi], thisY, thisErr,thisErr, thick=3.0, linestyle=2, color=0, errthick=3.0, errcolor=0
 
-;Re-arrange so that the bands overplot some of the points, but not others.
-oband,badx1,yband1,yband2,color=220
-oband,badx2,yband1,yband2,color=220
+id=4
+rgi=[4, 5, 6, 7, 8, 9, 10, 11]
+thisY=meanWL[rgi, id]
+thisErr=sigWL[rgi, id]
+;oplot, xpos, thisY, psym=10, color=255, thick=3.0
+;oploterror, xpos[rgi], thisY, thisErr,thisErr, thick=3.0, linestyle=3, color=0, errthick=3.0, errcolor=0
+oplot, [-200, 200], [0.512, 0.512], linestyle=5, color=0, thick=3.0
+;Mean of the Si:
 
-leg_text=['VG02', $
-          'VG04', $
+
+leg_text=['VG04', $
           'MIS01', $
           'VG08', $
-          'VG05']
-legend,leg_text,psym=[5, 6, 4, 2, -3], color=[150,255,100,50,0], $
-  position=[24, 0.507], charthick=2.0
+          'Si Mean']
+legend,leg_text,psym=[ 6, 4, 2, -3], color=[255,100,50,0], $
+  position=[24, 0.509], charthick=2.0
   
-loadct,0
-mT=0.5275
-sigT=0.0005482
+P=5 ;position number of interest.
+x_loc=(P)*5.0
+tvellipse,2.0,0.003,x_loc,0.512,0.0,thick=7,/data
+  
+!p.multi=[1, 2, 1, 0, 1]
+
+xtit=greek('lambda', /append_font)+' (nm)'
+device, /helvetica
+ytit='Transmission'
 
 
-xband1=[mT-sigT, mT-sigT]  
-xband2=[mT+sigT, mT+sigT]
-oband, [-1000, 1000], xband1, xband2, color=200
-oplot, [-1000, 1000], [mT, mT], linestyle=2, color=0
+loadct, 13
 
-XYOUTS, 7.0, 0.505, 'blocked by sample holder', ORIENTATION=75.0
-XYOUTS, 81.0, 0.505, 'blocked by sample holder', ORIENTATION=75.0
-XYOUTS, 30.0, mt+sigT*1.3, 'Fresnel Prediction', ORIENTATION=0.0
+plot, wl, outArr[P, 8, *], xtitle=xtit, ytitle=ytit, thick=3.0, charthick=2.0,$
+ yrange=[0.505, 0.520], psym=10, charsize=0.8, $
+ xrange=[1250.0, 1350.0], xstyle=1, ystyle=1, /nodata, /noerase
+ 
+;oplot, wl, outArr[P, 2, *], color=0, linestyle=2, thick=3.0
+;oplot, wl, outArr[P, 4, *], color=0, linestyle=3, thick=3.0
+oplot, wl, outArr[P, 6, *], color=150, psym=10, thick=3.0
+oplot, wl, outArr[P, 8, *], color=255, psym=10, thick=3.0
+oplot, wl, outArr[P, 9, *], color=100, psym=10, thick=3.0
+oplot, wl, outArr[P, 10, *], color=50, psym=10, thick=3.0
+oplot, wl, outArr[P, 11, *], color=0, psym=10, thick=3.0
+
+
+leg_text=['VG04', $
+          'MIS01', $
+          'VG08', $
+          'Si ref.']
+legend,leg_text, color=[255,100,50,0], linestyle=[0,0,0,0],$
+  position=[1260, 0.509], charthick=2.0
+
 
 Device, /Close_File
 Set_Plot, thisDevice
 Obj_Destroy, psObject
+!p.multi=0
 
-spawn, 'open /Users/gully/IDLWorkspace/FabryPerot/figs/GapCheckAltSTA.eps'
+spawn, 'open /Users/gully/IDLWorkspace/FabryPerot/figs/CherryPicSTA.eps'
 return, 1
 
 end
+
+
+
