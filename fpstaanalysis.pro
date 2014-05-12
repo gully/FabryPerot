@@ -57,10 +57,13 @@ rat1=reform(outArr[rgi, 2, *]/outArr[rgi,4, *])
 goodi= where(xpos lt 5.0 or (xpos gt 15.0 and xpos lt 80.0) or xpos gt 95.0 )
 ;c2=fpDriftFig(outArr, goodi)
 ;c3=fpFresCheckFig(xpos, meanWL, sigWL)
-c4 = fpAbs1250Fig( wl, rat1)
-c5 = fpGapCheckFig(xpos, meanWL, sigWL)
-c6 = fpGapCheckAltFig(xpos, meanWL, sigWL)
-c7 = fpCherryPicFig(wl, xpos, meanWL, sigWL, outArr)
+;c4 = fpAbs1250Fig( wl, rat1)
+;c5 = fpGapCheckFig(xpos, meanWL, sigWL)
+;c6 = fpGapCheckAltFig(xpos, meanWL, sigWL)
+;c7 = fpCherryPicFig(wl, xpos, meanWL, sigWL, outArr)
+for P=4, 15 do begin
+  c8 = fpVG02Fig(wl, xpos, meanWL, sigWL, outArr, P)
+endfor
 
 end
 
@@ -716,3 +719,79 @@ end
 
 
 
+function fpVG02Fig, wl, xpos, meanWL, sigWL, outArr, P
+x_loc=(P)*5.0
+device, decomposed=1
+outdir='/Users/gully/IDLWorkspace/FabryPerot/figs/'
+outname=strcompress('VG02_'+string(x_loc)+'mm.eps')
+psObject = Obj_New("FSC_PSConfig",/Color, /Helvetica, /Bold, $
+            Filename=outdir+outname, xsize=7.5, ysize=4.0, /encapsulate)
+thisDevice = !D.Name
+Set_Plot, "PS"
+!p.font=0
+!p.thick=3.0
+!x.thick=3.0
+!y.thick=3.0
+Device, _Extra=psObject->GetKeywords()
+
+nc=10
+c1=ceil(findgen(nc)/nc*255)
+
+;xtit=greek('lambda', /append_font)+' (nm)'
+xtit='x (mm)'
+device, /helvetica
+;ytit='T!De!N'
+ytit='Transmission'
+
+!p.multi=[0, 2, 1, 0, 1]
+
+Polyfill, [1,1,0,0,1], [1,0,0,1,1], /NORMAL, COLOR=cgColor('Papaya');'Pale Goldenrod')
+
+loadct, 13
+
+id=6
+thisY=meanWL[*, id]
+thisErr=sigWL[*, id]
+plot, xpos, thisY, xtitle=xtit, ytitle=ytit, thick=3.0, charthick=2.0,$
+ yrange=[0.28, 0.38], psym=10, charsize=0.8, $
+ xrange=[17, 78], xstyle=1, ystyle=1, /nodata, /noerase
+
+;oplot, xpos, thisY, psym=10, color=0, thick=3.0
+oploterror, xpos, thisY, thisErr,thisErr, psym=5, thick=3.0, color=150, errthick=3.0, errcolor=150
+
+leg_text=['VG02']
+legend,leg_text,psym=[ 5], color=[150], $
+  position=[24, 0.29], charthick=2.0
+  
+;P=4 ;position number of interest.
+tvellipse,2.0,0.005,x_loc,thisY[P],0.0,thick=7,/data
+  
+!p.multi=[1, 2, 1, 0, 1]
+
+xtit=greek('lambda', /append_font)+' (nm)'
+device, /helvetica
+ytit='Transmission'
+
+
+loadct, 13
+
+plot, wl, outArr[P, 8, *], xtitle=xtit, ytitle=ytit, thick=3.0, charthick=2.0,$
+ yrange=[0.28, 0.38], psym=10, charsize=0.8, $
+ xrange=[1250.0, 1350.0], xstyle=1, ystyle=1, /nodata, /noerase
+ 
+oplot, wl, outArr[P, 6, *], color=150, psym=10, thick=3.0
+
+leg_text=['VG02']
+          
+legend,leg_text, color=[150], linestyle=[0],$
+  position=[1260, 0.29], charthick=2.0
+
+Device, /Close_File
+Set_Plot, thisDevice
+Obj_Destroy, psObject
+!p.multi=0
+
+;spawn, 'open /Users/gully/IDLWorkspace/FabryPerot/figs/CherryPicVG02STA.eps'
+return, 1
+
+end
